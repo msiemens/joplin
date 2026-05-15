@@ -24,7 +24,7 @@ const expectWithInstructions = <T>(value: T) => {
 };
 
 const removeItemIds = (body: string) => {
-	return body.replace(/:\/[a-z0-9]{32}/g, ':/id-here');
+	return body.replace(/:\/[a-z0-9]{1,32}/g, ':/id-here');
 };
 
 const removeDefaultCss = (body: string) => {
@@ -111,16 +111,16 @@ describe('InteropService_Importer_OneNote', () => {
 		const menuLines = menuHtml.split('</li>');
 
 		const pageTwo = notes.find(n => n.title === 'Page 2');
-		expectWithInstructions(menuLines[3].trim()).toBe(`<li class="l1"><a href=":/${pageTwo.id}" target="content" title="Page 2">${pageTwo.title}</a>`);
+		expectWithInstructions(menuLines[3].trim()).toBe(`<li><a href=":/${pageTwo.id}" target="content" class="l1" title="Page 2">${pageTwo.title}</a>`);
 
 		const pageTwoA = notes.find(n => n.title === 'Page 2-a');
-		expectWithInstructions(menuLines[4].trim()).toBe(`<li class="l2"><a href=":/${pageTwoA.id}" target="content" title="Page 2-a">${pageTwoA.title}</a>`);
+		expectWithInstructions(menuLines[4].trim()).toBe(`<li><a href=":/${pageTwoA.id}" target="content" class="l2" title="Page 2-a">${pageTwoA.title}</a>`);
 
 		const pageTwoAA = notes.find(n => n.title === 'Page 2-a-a');
-		expectWithInstructions(menuLines[5].trim()).toBe(`<li class="l3"><a href=":/${pageTwoAA.id}" target="content" title="Page 2-a-a">${pageTwoAA.title}</a>`);
+		expectWithInstructions(menuLines[5].trim()).toBe(`<li><a href=":/${pageTwoAA.id}" target="content" class="l3" title="Page 2-a-a">${pageTwoAA.title}</a>`);
 
 		const pageTwoB = notes.find(n => n.title === 'Page 2-b');
-		expectWithInstructions(menuLines[7].trim()).toBe(`<li class="l2"><a href=":/${pageTwoB.id}" target="content" title="Page 2-b">${pageTwoB.title}</a>`);
+		expectWithInstructions(menuLines[7].trim()).toBe(`<li><a href=":/${pageTwoB.id}" target="content" class="l2" title="Page 2-b">${pageTwoB.title}</a>`);
 	});
 
 	it('should created subsections', async () => {
@@ -247,7 +247,7 @@ describe('InteropService_Importer_OneNote', () => {
 		const noteToTest = notes.find(n => n.title === 'Tips from a Pro: Using Trees for Dramatic Landscape Photography');
 
 		expectWithInstructions(noteToTest).toBeTruthy();
-		expectWithInstructions(noteToTest.body).toContain('<a href="onenote:https://d.docs.live.net/c8d3bbab7f1acf3a/Documents/Photography/%E9%A3%8E%E6%99%AF.one#Tips%20from%20a%20Pro%20Using%20Trees%20for%20Dramatic%20Landscape%20Photography&amp;section-id={262ADDFB-A4DC-4453-A239-0024D6769962}&amp;page-id={88D803A5-4F43-48D4-9B16-4C024F5787DC}&amp;end" style="">Tips from a Pro: Using Trees for Dramatic Landscape Photography</a>');
+		expectWithInstructions(noteToTest.body).toContain('<a href="onenote:https://d.docs.live.net/c8d3bbab7f1acf3a/Documents/Photography/风景.one#Tips%20from%20a%20Pro%20Using%20Trees%20for%20Dramatic%20Landscape%20Photography&amp;section-id={262ADDFB-A4DC-4453-A239-0024D6769962}&amp;page-id={88D803A5-4F43-48D4-9B16-4C024F5787DC}&amp;end" style="">Tips from a Pro: Using Trees for Dramatic Landscape Photography</a>');
 	});
 
 	it('should render links properly by ignoring wrongly set indices when the first character is a hyperlink marker', async () => {

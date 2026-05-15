@@ -2,9 +2,9 @@
 
 This package is used to process OneNote backup files and output HTML that Joplin can import.
 
-The code is based on the `one2html` and `onenote.rs` projects created by https://github.com/msiemens.
+The code is based on the [`onenote_parser`](https://github.com/msiemens/onenote.rs) and [`one2html`](https://github.com/msiemens/one2html) crates created by https://github.com/msiemens.
 
-We adapted it to target WebAssembly, adding Node.js functions that could interface with the host machine. For that to happen we are using custom-made functions (see `node_functions.js`) and the Node.js standard library (see `src/utils.rs`).
+This package is a thin WebAssembly bridge over those crates. All actual parsing and rendering logic lives in them; here we wire them up to wasm-bindgen and provide a Node.js filesystem implementation so the renderer can read input and write output via Node's `fs` module (see `node_functions.js` and `src/fs.rs`).
 
 ## How the OneNote Importer Process Works
 
@@ -18,7 +18,8 @@ The process looks like this:
     1. Find all SVG nodes in the HTML file.
     2. Create SVG files from the nodes.
     3. Update the HTML file with references to the SVGs.
-4. Use the Importer HTML service to create the Joplin notes and resources.
+4. Rewrite `<embed>` / `<audio>` / `<video>` references emitted by the renderer into anchors so the Markdown importer can attach them as Joplin resources.
+5. Use the Importer HTML service to create the Joplin notes and resources.
 
 See the `InteropService_Importer_OneNote` class in the `lib` project for details.
 
@@ -41,15 +42,15 @@ After this, the HTML should look the same and is ready to be imported by the Imp
 ```
 - onenote-converter
     - package.json              -> where the project is built
+    - Cargo.toml                -> single-crate manifest; depends on onenote_parser + one2html
     - node_functions.js         -> where the custom-made functions used inside rust goes
     ...
-    - tests                     -> Integration tests
-    ...
     - pkg                       -> artifact folder generated in the build step
-        - onenote_converter.js  -> main file
+        - joplin_interop.js     -> main file
     ...
     - src
-        - lib.rs                -> starting point
+        - lib.rs                -> #[wasm_bindgen] entry point
+        - fs.rs                 -> WasmFs: implements onenote_parser::FileSystem on top of node_functions.js
 ```
 
 ## Development requirements:
@@ -70,7 +71,13 @@ For most setups, the OneNote converter must be built manually:
 
 ### Running tests
 
-Most tests for this project are located in the `lib` package. After building the project, set the `IS_CONTINUOUS_INTEGRATION` environment variable and run the tests in `InteropService_Importer_OneNote.test.ts` file:
+Most tests for the project are located in the `lib` packages, but to make it work it is necessary to build this project first:
+
+`IS_CONTINUOUS_INTEGRATION=1 yarn build # for production build`
+or 
+`IS_CONTINUOUS_INTEGRATION=1 yarn buildDev # for build with more logs and compiles faster`
+
+After that you should navigate to `lib` package and run the tests of `InteropService_Importer_OneNote.test.` file
 
 ```
 cd ../lib
@@ -83,30 +90,16 @@ cd packages/onenote-converter
 cargo test
 ```
 
+The bulk of the unit tests for parsing and rendering live in the upstream `onenote_parser` and `one2html` crates respectively. Bugs in OneNote parsing or HTML output are usually best reproduced and fixed there.
+
 ### Debugging tests
 
 Suppose that the importer's Rust code is failing to parse a specific `example.one` file. In this case, it may be useful to step through part of the import process in a debugger. If using VSCode, this can be done by:
-1. Adding a new test to `tests/convert.rs` that runs `convert()` on the `example.one` file.
+1. Adding a new test in the upstream `one2html` crate that runs `convert()` on the `example.one` file.
 2. Setting up Rust and Rust debugging. See [the relevant VSCode documentation](https://code.visualstudio.com/docs/languages/rust#_debugging) for details.
 3. Clicking the "Debug" button for the test added in step 1. This button should be provided by extensions set up in step 2.
 
-### Inspecting `.one` files
 
-The `inspect` binary target of the `parser` crate allows inspecting `.one` file data.
-
-For example, to inspect lower-level OneStore data:
-```console
-bash$ cd parser/
-bash$ cargo run -- ../test-data/ink.one --onestore
-```
-
-To inspect higher-level (parsed) section data:
-```console
-bash$ cd parser/
-bash$ cargo run -- ../test-data/ink.one --section
-```
-
-**Note**: `inspect`'s output is unstable and should not be relied upon by scripts.
 
 ### Developing
 
@@ -117,8 +110,8 @@ During development, it will be easier to test it where this library is called. `
 We don't require developers that won't work on this project to have Rust installed on their machine.
 To make this work we:
 
-- Use temporary files, required only for building the application correctly (e.g: `pkg/onenote_converter.js`).
-- Skip the build process if `IS_CONTINUOUS_INTEGRATION` is not set (see `build.js`).
+- Use temporary files, required only for building the application correctly (e.g: `pkg/joplin_interop.js`).
+- Skip the build process if `IS_CONTINUOUS_INTEGRATION` is not set (see `tools/build.js`).
 - Skip some tests if `IS_CONTINUOUS_INTEGRATION` is not set (see `lib/services/interop/InteropService_Importer_OneNote.test.ts`).
 
 The tests should still run on CI since `IS_CONTINUOUS_INTEGRATION` is used there.

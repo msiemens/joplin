@@ -29,7 +29,7 @@ async function main() {
 	}
 
 
-	const buildCommand = `wasm-pack build --target nodejs --${argv.profile} ./renderer`;
+	const buildCommand = `wasm-pack build --target nodejs --${argv.profile} .`;
 
 	await execCommand(buildCommand);
 

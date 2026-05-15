@@ -98,9 +98,13 @@ export default class InteropService_Importer_OneNote extends InteropService_Impo
 			return result;
 		}
 
+		// .onetoc2 files are skipped: they're notebook-level table-of-contents
+		// metadata, and the .one files in the same tree already carry the actual
+		// section content. Processing both would produce a duplicate notebook
+		// subtree under one2html's notebook::render output path.
 		const notebookFiles = files.filter(file =>
-			['.one', '.onepkg', '.onetoc2'].includes(extname(file.path).toLowerCase()) &&
-			basename(file.path) !== 'OneNote_RecycleBin.onetoc2',
+			['.one', '.onepkg'].includes(extname(file.path).toLowerCase()) &&
+			!file.path.split(/[\\/]/).includes('OneNote_RecycleBin'),
 		);
 
 		const topLevelEntries = unique(notebookFiles.map(file => this.getEntryDirectory(unzipTempDirectory, file.path)));
@@ -328,6 +332,10 @@ export default class InteropService_Importer_OneNote extends InteropService_Impo
 		const nodesToRemove = [
 			// <script> blocks that aren't marked with a specific type (e.g. application/tex).
 			{ selector: 'script:not([type])' },
+
+			// MathJax CDN loader emitted by one2html. Joplin is offline-first; we
+			// don't want imported notes to hit an external CDN on every open.
+			{ selector: 'script[src*="mathjax"]', preprocess: removeLeadingSpace },
 
 			// ID mappings and other metadata (unused at this stage of the import process)
 			// Remove leading space to avoid unnecessary blank lines in test snapshots

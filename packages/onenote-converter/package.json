@@ -7,7 +7,7 @@
   "version": "3.7.0",
   "license": "MPL-2.0-no-copyleft-exception",
   "repository": "https://github.com/laurent22/joplin/tree/dev/packages/onenote-converter",
-  "main": "./renderer/pkg/renderer.js",
+  "main": "./pkg/joplin_interop.js",
   "scripts": {
     "build": "node ./tools/build.js --profile=release",
     "buildDev": "node ./tools/build.js --profile=dev",

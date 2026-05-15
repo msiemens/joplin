@@ -90,6 +90,7 @@ Bénin
 Bhutani
 bibtex
 Bihari
+bindgen
 Bishoy
 Bislama
 blabla
