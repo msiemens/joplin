@@ -18,7 +18,7 @@ exports[`InteropService_Importer_OneNote should apply position data for embedded
 <div class="title" style="left: 48px; position: absolute; top: 24px;"><div class="container-outline" style="max-width: 624px;"><div class="outline-element" style="margin-left: 0px;"><span style="font-family: &quot;Calibri Light&quot;, sans-serif; font-size: 20pt; line-height: 32px;">Embedded doc sheet</span></div>
 </div><div class="container-outline" style="max-width: 624px;"><div class="outline-element" style="margin-left: 0px;"><span style="color: rgb(118,118,118); font-family: &quot;Calibri&quot;, sans-serif; font-size: 10pt; line-height: 16px;">Wednesday, December 11, 2019</span></div>
 <div class="outline-element" style="margin-left: 0px;"><span style="color: rgb(118,118,118); font-family: &quot;Calibri&quot;, sans-serif; font-size: 10pt; line-height: 16px;">5:35 PM</span></div>
-</div></div><embed src="Dude this is a super cool embedded doc.docx"><div class="container-outline" style="left: 192px; max-width: 624px; position: absolute; top: 259px;"><div class="outline-element" style="margin-left: 0px;"><p style="font-family: &quot;Calibri&quot;, sans-serif; font-size: 11pt; line-height: 18px;">&nbsp;</p></div>
+</div></div><a href=":/id-here">Dude this is a super cool embedded doc.docx</a><div class="container-outline" style="left: 192px; max-width: 624px; position: absolute; top: 259px;"><div class="outline-element" style="margin-left: 0px;"><p style="font-family: &quot;Calibri&quot;, sans-serif; font-size: 11pt; line-height: 18px;">&nbsp;</p></div>
 </div>
 
 
@@ -117,8 +117,8 @@ exports[`InteropService_Importer_OneNote should be able to create notes from cor
 <body>
 
 <div class="title" style="left: 48px; position: absolute; top: 24px;"><div class="container-outline" style="max-width: 624px;"><div class="outline-element" style="margin-left: 0px;"><span style="font-family: &quot;Calibri Light&quot;, sans-serif; font-size: 20pt;">title</span></div>
-</div></div><div class="container-outline" style="left: 48px; max-width: 576px; position: absolute; top: 120px;"><div class="outline-element" style="margin-left: 0px;"><embed src="Untitled"></div>
-<div class="outline-element" style="margin-left: 0px;"><embed src="Untitled-0.bin"></div>
+</div></div><div class="container-outline" style="left: 48px; max-width: 576px; position: absolute; top: 120px;"><div class="outline-element" style="margin-left: 0px;"><a href=":/id-here">Untitled</a></div>
+<div class="outline-element" style="margin-left: 0px;"><a href=":/id-here">Untitled-0.bin</a></div>
 </div><div class="container-outline" style="left: 909px; max-width: 624px; position: absolute; top: 132px;"><div class="outline-element" style="margin-left: 0px;"><p style="font-family: &quot;Calibri&quot;, sans-serif; font-size: 11pt;">&nbsp;</p></div>
 </div>
 
@@ -1362,7 +1362,7 @@ exports[`InteropService_Importer_OneNote should render audio as links to resourc
 <div class="title" style="left: 48px; position: absolute; top: 24px;"><div class="container-outline" style="max-width: 624px;"><div class="outline-element" style="margin-left: 0px;"><span style="font-family: &quot;Calibri Light&quot;, sans-serif; font-size: 20pt;">My title</span></div>
 </div><div class="container-outline" style="max-width: 624px;"><div class="outline-element" style="margin-left: 0px;"><span style="color: rgb(128,128,128); font-family: &quot;Calibri&quot;, sans-serif; font-size: 10pt;">Friday, March 7, 2025</span></div>
 <div class="outline-element" style="margin-left: 0px;"><span style="color: rgb(128,128,128); font-family: &quot;Calibri&quot;, sans-serif; font-size: 10pt;">11:16 AM</span></div>
-</div></div><div class="container-outline" style="left: 48px; max-width: 624px; position: absolute; top: 115px;"><div class="outline-element" style="margin-left: 0px;"><audio controls="" src="Audio Recording.wav"></audio></div>
+</div></div><div class="container-outline" style="left: 48px; max-width: 624px; position: absolute; top: 115px;"><div class="outline-element" style="margin-left: 0px;"><a href=":/id-here">Audio Recording.wav</a></div>
 <div class="outline-element" style="margin-left: 0px;"><p style="font-family: &quot;Calibri&quot;, sans-serif; font-size: 11pt;">&nbsp;</p></div>
 </div><div class="container-outline" style="left: 245px; max-width: 624px; position: absolute; top: 166px;"><div class="outline-element" style="margin-left: 0px;"><p style="font-family: &quot;Calibri&quot;, sans-serif; font-size: 11pt;">&nbsp;</p></div>
 <div class="outline-element" style="margin-left: 0px;"><p style="font-family: &quot;Calibri&quot;, sans-serif; font-size: 11pt;">&nbsp;</p></div>

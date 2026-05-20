@@ -242,6 +242,7 @@ export default class InteropService_Importer_OneNote extends InteropService_Impo
 		const pipeline = [
 			(dom: Document, currentFolder: string) => this.extractSvgsToFiles_(dom, currentFolder),
 			(dom: Document, currentFolder: string) => this.convertExternalLinksToInternalLinks_(dom, currentFolder, idMap),
+			(dom: Document, _currentFolder: string) => Promise.resolve(this.convertEmbeddedMediaToLinks_(dom)),
 			(dom: Document, _currentFolder: string) => Promise.resolve(this.simplifyHtml_(dom)),
 		];
 		// Workaround: HTML read directly from the filesystem can cause parseFromString to hang.
@@ -317,6 +318,34 @@ export default class InteropService_Importer_OneNote extends InteropService_Impo
 				changed = true;
 				link.href = relative(baseFolder, targetPage.path);
 			}
+		}
+		return changed;
+	}
+
+	// Joplin's HTML importer doesn't handle <audio>/<video>/<embed>, so the
+	// referenced attachment is lost on import. Rewrite each to a plain
+	// <a href="src">basename(src)</a> so the Markdown importer treats it as a
+	// regular file link and attaches it as a Joplin resource.
+	private convertEmbeddedMediaToLinks_(dom: Document) {
+		const elementToSrc = (el: Element): string | null => {
+			const direct = el.getAttribute('src');
+			if (direct) return direct;
+			const source = el.querySelector('source[src]');
+			return source?.getAttribute('src') ?? null;
+		};
+
+		let changed = false;
+		for (const el of dom.querySelectorAll('audio, video, embed')) {
+			const src = elementToSrc(el);
+			if (!src) continue;
+
+			const anchor = dom.createElement('a');
+			anchor.setAttribute('href', src);
+			let label = src.split(/[\\/]/).pop() || src;
+			try { label = decodeURIComponent(label); } catch { /* keep raw */ }
+			anchor.textContent = label;
+			el.replaceWith(anchor);
+			changed = true;
 		}
 		return changed;
 	}

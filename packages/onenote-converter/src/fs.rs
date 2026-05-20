@@ -1,7 +1,7 @@
 use bytes::Bytes;
 use js_sys::Array;
 use onenote_parser::FileSystem;
-use onenote_parser::fs::FileSource;
+use onenote_parser::fs::{FileSource, CachedFileSource};
 use std::io::{Error, Read};
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
@@ -139,7 +139,7 @@ impl FileSystem for WasmFs {
         let fd = open_file_for_reading(path_str.as_ref())
             .map_err(|e| handle_error(e, &format!("open {}", path_str)))?;
 
-        Ok(Arc::new(NodeFileSource { fd, byte_length }))
+        Ok(Arc::new(CachedFileSource::new(NodeFileSource { fd, byte_length })))
     }
 
     fn make_dir(&self, path: &Path) -> Result<(), Error> {
