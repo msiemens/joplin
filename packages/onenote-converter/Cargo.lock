@@ -229,9 +229,9 @@ dependencies = [
 
 [[package]]
 name = "either"
-version = "1.15.0"
+version = "1.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719"
+checksum = "91622ff5e7162018101f2fea40d6ebf4a78bbe5a49736a2020649edf9693679e"
 
 [[package]]
 name = "encoding_rs"
@@ -518,8 +518,8 @@ dependencies = [
 
 [[package]]
 name = "onenote_parser"
-version = "1.1.0"
-source = "git+https://github.com/msiemens/onenote.rs?branch=joplin-merge#b306d358ab29aeb656141a17e8f0cdafcc7e9f2a"
+version = "1.1.1"
+source = "git+https://github.com/msiemens/onenote.rs?branch=joplin-merge#1ed599c0613ffa58c96cf1abdb51e99ba85b5ae2"
 dependencies = [
  "bytes",
  "cab",
@@ -529,12 +529,22 @@ dependencies = [
  "log",
  "lru",
  "num-traits",
- "parser-macros",
+ "onenote_parser-macros",
  "sanitize-filename",
  "thiserror",
  "time",
  "uuid",
  "widestring",
+]
+
+[[package]]
+name = "onenote_parser-macros"
+version = "1.1.1"
+source = "git+https://github.com/msiemens/onenote.rs?branch=joplin-merge#1ed599c0613ffa58c96cf1abdb51e99ba85b5ae2"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
 
 [[package]]
@@ -562,16 +572,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f5030daf005bface118c096f510ffb781fc28f9ab6a32ab224d8631be6851d30"
 dependencies = [
  "by_address",
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "parser-macros"
-version = "0.0.0"
-source = "git+https://github.com/msiemens/onenote.rs?branch=joplin-merge#b306d358ab29aeb656141a17e8f0cdafcc7e9f2a"
-dependencies = [
  "proc-macro2",
  "quote",
  "syn",

@@ -1,20 +1,40 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-function makeDir(filepath) {
-	fs.mkdirSync(filepath, { recursive: true });
+function normalize(filePath) {
+	if (!isWindows()) return path.normalize(filePath);
+
+	const abs = path.resolve(filePath);
+	const s = abs.replace(/\//g, '\\');
+
+	if (s.startsWith('\\\\?\\')) {
+		return s;
+	}
+
+	if (s.startsWith('\\\\')) {
+		// UNC share path → \\?\UNC\server\share\...
+		return `\\\\?\\UNC\\${s.substring(2)}`;
+	} else {
+		return `\\\\?\\${s}`;
+	}
 }
 
-function isDirectory(filepath) {
-	if (!fs.existsSync(filepath)) return false;
-
-	return fs.lstatSync(filepath).isDirectory();
+function makeDir(filePath) {
+	fs.mkdirSync(filePath, { recursive: true });
 }
 
-function readDir(filepath) {
-	const dirContents = fs.readdirSync(filepath, { withFileTypes: true });
+function isDirectory(filePath) {
+	filePath = normalize(filePath);
+	if (!fs.existsSync(filePath)) return false;
 
-	return dirContents.map(entry => filepath + path.sep + entry.name);
+	return fs.lstatSync(filePath).isDirectory();
+}
+
+function readDir(filePath) {
+	filePath = normalize(filePath);
+	const dirContents = fs.readdirSync(filePath, { withFileTypes: true });
+
+	return dirContents.map(entry => filePath + path.sep + entry.name);
 }
 
 function normalizeAndWriteFile(filePath, data) {
@@ -24,7 +44,7 @@ function normalizeAndWriteFile(filePath, data) {
 }
 
 function openFileForReading(filePath) {
-	filePath = path.normalize(filePath);
+	filePath = normalize(filePath);
 	return fs.openSync(filePath, 'r');
 }
 
@@ -42,7 +62,7 @@ function closeFile(fd) {
 }
 
 function fileSize(filePath) {
-	filePath = path.normalize(filePath);
+	filePath = normalize(filePath);
 	return fs.statSync(filePath).size;
 }
 
@@ -50,6 +70,10 @@ function readFileChunk(fd, offset, length) {
 	const buf = Buffer.alloc(length);
 	const bytesRead = fs.readSync(fd, buf, 0, length, offset);
 	return bytesRead === length ? buf : buf.subarray(0, bytesRead);
+}
+
+function isWindows() {
+	return process.platform === 'win32';
 }
 
 module.exports = {
@@ -63,4 +87,5 @@ module.exports = {
 	closeFile,
 	fileSize,
 	readFileChunk,
+	isWindows,
 };

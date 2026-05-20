@@ -40,6 +40,9 @@ extern "C" {
 
     #[wasm_bindgen(js_name = readFileChunk, catch)]
     fn read_file_chunk(fd: i32, offset: f64, length: u32) -> Result<JsValue, JsValue>;
+
+    #[wasm_bindgen(js_name = isWindows)]
+    fn is_windows() -> bool;
 }
 
 #[wasm_bindgen(module = "fs")]
@@ -152,6 +155,10 @@ impl FileSystem for WasmFs {
     fn exists(&self, path: &Path) -> Result<bool, Error> {
         let path = path.to_string_lossy();
         exists(path.as_ref()).map_err(|e| handle_error(e, &format!("checking exists {}", path)))
+    }
+
+    fn is_windows(&self) -> bool {
+        is_windows()
     }
 }
 
