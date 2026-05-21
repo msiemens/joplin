@@ -12,10 +12,11 @@ wasm-bindgen = "0.2"
 web-sys = "0.3.85"
 js-sys = "0.3.85"
 wasm-logger = "0.2.0"
+typed-path = "0.12.3"
 
 [patch.crates-io]
 one2html = { git = "https://github.com/msiemens/one2html", branch = "joplin-merge" }
-onenote_parser = { git = "https://github.com/msiemens/onenote.rs", branch = "joplin-merge" }
+onenote_parser = { git = "https://github.com/msiemens/onenote.rs", branch = "feat/onenote-desktop" }
 
 [lib]
 crate-type = ["cdylib", "lib"]

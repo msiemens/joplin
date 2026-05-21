@@ -380,6 +380,7 @@ dependencies = [
  "js-sys",
  "one2html",
  "onenote_parser",
+ "typed-path",
  "wasm-bindgen",
  "wasm-logger",
  "web-sys",
@@ -495,7 +496,7 @@ checksum = "9f7c3e4beb33f85d45ae3e3a1792185706c8e16d043238c593331cc7cd313b50"
 [[package]]
 name = "one2html"
 version = "1.3.0"
-source = "git+https://github.com/msiemens/one2html?branch=joplin-merge#23c95d632170e20946c812f3ae7d94413c9ba729"
+source = "git+https://github.com/msiemens/one2html?branch=joplin-merge#2c05760c64a3ff6110a9d113f07132c0e6893ddd"
 dependencies = [
  "askama",
  "bitflags",
@@ -513,13 +514,14 @@ dependencies = [
  "phf 0.13.1",
  "regex",
  "sanitize-filename",
+ "typed-path",
  "unicode-blocks",
 ]
 
 [[package]]
 name = "onenote_parser"
 version = "1.1.1"
-source = "git+https://github.com/msiemens/onenote.rs?branch=joplin-merge#1ed599c0613ffa58c96cf1abdb51e99ba85b5ae2"
+source = "git+https://github.com/msiemens/onenote.rs?branch=feat%2Fonenote-desktop#f2d8b453e73c4fbd5e31a7d367f4daa9578d1d74"
 dependencies = [
  "bytes",
  "cab",
@@ -533,6 +535,7 @@ dependencies = [
  "sanitize-filename",
  "thiserror",
  "time",
+ "typed-path",
  "uuid",
  "widestring",
 ]
@@ -540,7 +543,7 @@ dependencies = [
 [[package]]
 name = "onenote_parser-macros"
 version = "1.1.1"
-source = "git+https://github.com/msiemens/onenote.rs?branch=joplin-merge#1ed599c0613ffa58c96cf1abdb51e99ba85b5ae2"
+source = "git+https://github.com/msiemens/onenote.rs?branch=feat%2Fonenote-desktop#f2d8b453e73c4fbd5e31a7d367f4daa9578d1d74"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -948,6 +951,12 @@ dependencies = [
  "thread_local",
  "tracing-core",
 ]
+
+[[package]]
+name = "typed-path"
+version = "0.12.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8e28f89b80c87b8fb0cf04ab448d5dd0dd0ade2f8891bae878de66a75a28600e"
 
 [[package]]
 name = "unicase"

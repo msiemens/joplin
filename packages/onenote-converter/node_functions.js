@@ -72,6 +72,11 @@ function readFileChunk(fd, offset, length) {
 	return bytesRead === length ? buf : buf.subarray(0, bytesRead);
 }
 
+function canonicalize(filePath) {
+	filePath = normalize(filePath);
+	return fs.realpathSync(filePath);
+}
+
 function isWindows() {
 	return process.platform === 'win32';
 }
@@ -87,5 +92,6 @@ module.exports = {
 	closeFile,
 	fileSize,
 	readFileChunk,
+	canonicalize,
 	isWindows,
 };

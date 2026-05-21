@@ -1,10 +1,11 @@
 use bytes::Bytes;
 use js_sys::Array;
 use onenote_parser::FileSystem;
-use onenote_parser::fs::{FileSource, CachedFileSource};
+use onenote_parser::fs::FileSource;
+use onenote_parser::fs::file_source::CachedFileSource;
 use std::io::{Error, Read};
-use std::path::{Path, PathBuf};
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
+use typed_path::{TypedPath, TypedPathBuf};
 use wasm_bindgen::JsValue;
 use wasm_bindgen::prelude::wasm_bindgen;
 use web_sys::js_sys::Uint8Array;
@@ -41,6 +42,9 @@ extern "C" {
     #[wasm_bindgen(js_name = readFileChunk, catch)]
     fn read_file_chunk(fd: i32, offset: f64, length: u32) -> Result<JsValue, JsValue>;
 
+    #[wasm_bindgen(js_name = canonicalize, catch)]
+    fn canonicalize(path: &str) -> Result<JsValue, JsValue>;
+
     #[wasm_bindgen(js_name = isWindows)]
     fn is_windows() -> bool;
 }
@@ -58,12 +62,12 @@ extern "C" {
 pub(crate) struct WasmFs {}
 
 impl FileSystem for WasmFs {
-    fn is_directory(&self, path: &Path) -> Result<bool, Error> {
+    fn is_directory(&self, path: TypedPath) -> Result<bool, Error> {
         is_directory(path.to_string_lossy().as_ref())
             .map_err(|e| handle_error(e, "checking is_directory"))
     }
 
-    fn read_dir(&self, path: &Path) -> Result<Vec<PathBuf>, Error> {
+    fn read_dir(&self, path: TypedPath) -> Result<Vec<TypedPathBuf>, Error> {
         let value = read_dir(path.to_string_lossy().as_ref())
             .map_err(|e| handle_error(e, "reading dir"))?;
 
@@ -72,28 +76,28 @@ impl FileSystem for WasmFs {
         let mut out = Vec::with_capacity(arr.length() as usize);
         for i in 0..arr.length() {
             if let Some(s) = arr.get(i).as_string() {
-                out.push(PathBuf::from(s));
+                out.push(TypedPathBuf::from(s));
             }
         }
 
         Ok(out)
     }
 
-    fn read_file(&self, path: &Path) -> Result<Vec<u8>, Error> {
+    fn read_file(&self, path: TypedPath) -> Result<Vec<u8>, Error> {
         let path = path.to_string_lossy();
         let value = read_file(path.as_ref())
             .map_err(|e| handle_error(e, &format!("reading file {}", path)))?;
         Ok(Uint8Array::new(&value).to_vec())
     }
 
-    fn write_file(&self, path: &Path, data: &[u8]) -> Result<(), Error> {
+    fn write_file(&self, path: TypedPath, data: &[u8]) -> Result<(), Error> {
         let path = path.to_string_lossy();
         write_file(path.as_ref(), data)
             .map(|_| ())
             .map_err(|e| handle_error(e, &format!("writing file {}", path)))
     }
 
-    fn stream_to_file(&self, path: &Path, reader: &mut dyn Read) -> Result<(), Error> {
+    fn stream_to_file(&self, path: TypedPath, reader: &mut dyn Read) -> Result<(), Error> {
         let path_str = path.to_string_lossy();
 
         // openSync(path, 'w') creates and truncates, so zero-byte streams still
@@ -132,7 +136,29 @@ impl FileSystem for WasmFs {
         Ok(())
     }
 
-    fn open_file(&self, path: &Path) -> Result<Arc<dyn FileSource>, Error> {
+    fn make_dir(&self, path: TypedPath) -> Result<(), Error> {
+        let path = path.to_string_lossy();
+        make_dir(path.as_ref())
+            .map(|_| ())
+            .map_err(|e| handle_error(e, &format!("mkdir {}", path)))
+    }
+
+    fn canonicalize(&self, path: TypedPath) -> Result<TypedPathBuf, Error> {
+        let canonical_path = canonicalize(path.to_string_lossy().as_ref())
+            .map_err(|e| handle_error(e, &format!("canonicalize {}", path.to_string_lossy())))?;
+
+        canonical_path
+            .as_string()
+            .map(TypedPathBuf::from)
+            .ok_or_else(|| Error::other("canonicalize returned null"))
+    }
+
+    fn exists(&self, path: TypedPath) -> Result<bool, Error> {
+        let path = path.to_string_lossy();
+        exists(path.as_ref()).map_err(|e| handle_error(e, &format!("checking exists {}", path)))
+    }
+
+    fn open_file(&self, path: TypedPath) -> Result<Arc<dyn FileSource>, Error> {
         let path_str = path.to_string_lossy();
 
         let byte_length = file_size(path_str.as_ref())
@@ -142,19 +168,10 @@ impl FileSystem for WasmFs {
         let fd = open_file_for_reading(path_str.as_ref())
             .map_err(|e| handle_error(e, &format!("open {}", path_str)))?;
 
-        Ok(Arc::new(CachedFileSource::new(NodeFileSource { fd, byte_length })))
-    }
-
-    fn make_dir(&self, path: &Path) -> Result<(), Error> {
-        let path = path.to_string_lossy();
-        make_dir(path.as_ref())
-            .map(|_| ())
-            .map_err(|e| handle_error(e, &format!("mkdir {}", path)))
-    }
-
-    fn exists(&self, path: &Path) -> Result<bool, Error> {
-        let path = path.to_string_lossy();
-        exists(path.as_ref()).map_err(|e| handle_error(e, &format!("checking exists {}", path)))
+        Ok(Arc::new(CachedFileSource::new(NodeFileSource {
+            fd,
+            byte_length,
+        })))
     }
 
     fn is_windows(&self) -> bool {
